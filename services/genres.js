@@ -1,6 +1,18 @@
 const {dbAddr,} = require('../config')
 const {getDbConn,} = require('../db')
 
+const getMovies = id => getDbConn(dbAddr).any(
+    `
+SELECT movies.id, 
+    movies.title, 
+    movies.image_url
+FROM movies 
+JOIN genres on genres.id = movies.genre_id
+WHERE genres.id = $[id]
+    `,
+    {id}
+);
+
 const get = id => getDbConn(dbAddr).one(
     'SELECT * FROM genres where genres.id = $[id]',
     {id}
@@ -26,5 +38,6 @@ module.exports = {
     get,
     put,
     getAll,
+    getMovies,
 }
 
