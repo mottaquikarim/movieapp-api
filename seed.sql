@@ -15,10 +15,10 @@ CREATE TABLE movies (
     image_url VARCHAR NOT NULL
 );
 
-CREATE TYPE star_rating as ENUM('1','2','3','4','5');
 CREATE TABLE ratings (
     id SERIAL PRIMARY KEY,
-    stars star_rating NOT NULL,
+    stars INTEGER NOT NULL,
+    CHECK (stars BETWEEN 1 AND 5),
     movie_id INT REFERENCES movies(id)
 );
 

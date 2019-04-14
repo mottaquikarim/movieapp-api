@@ -1,5 +1,23 @@
 const express = require('express');
+const cache = require('memory-cache');
+
 const Movies = require('../services/movies');
+
+const getMovieSearch = (req, res) => {
+    const {title} = req.params;
+
+    const resp = cache.get(title);
+    if (resp) {
+        res.json({success: true, data: JSON.parse(resp)});
+        return;
+    }
+
+    Movies.search(req.params.title)
+        .then(data => {
+            cache.put(title, JSON.stringify(data), 5 * 60 * 1000);
+            res.json({success: true, data});
+        })
+}
 
 const postMovie = (req, res) => {
     Movies.add(req.body)
@@ -35,6 +53,7 @@ const getMoviesRouter = () => {
 
     router.post('/', postMovie)
     router.get('/', getAllMovie)
+    router.get('/search/:title', getMovieSearch)
     router.get('/:id', getMovie)
     router.put('/:id', putMovie)
 

@@ -1,11 +1,68 @@
 const {dbAddr,} = require('../config')
 const {getDbConn,} = require('../db')
 
+
+const search = title => getDbConn(dbAddr).any(
+    `
+SELECT movies.id,
+   movies.title,
+   movies.image_url,
+   (SELECT to_char(
+           AVG (ratings.stars),
+           '9D99'
+        ) AS avg_rating
+     FROM movies JOIN ratings on ratings.movie_id = movies.id),
+   genres.id as genre_id,
+   genres.name as genre_name
+FROM movies
+JOIN genres on genres.id = movies.genre_id
+WHERE movies.title ILIKE '$1#%'
+    `,
+    title
+);
+
 const get = id => getDbConn(dbAddr).one(
+    `
+SELECT movies.id,
+   movies.title,
+   movies.image_url,
+   (SELECT to_char(
+           AVG (ratings.stars),
+           '9D99'
+        ) AS avg_rating
+     FROM movies JOIN ratings on ratings.movie_id = movies.id WHERE movies.id = $[id]),
+   genres.id as genre_id,
+   genres.name as genre_name
+FROM movies
+JOIN genres on genres.id = movies.genre_id
+WHERE movies.id = $[id]
+    `,
+    {id,}
+)
+
+const getAll = id => getDbConn(dbAddr).any(
+    `
+SELECT movies.id,
+   movies.title,
+   movies.image_url,
+   (SELECT to_char(
+           AVG (ratings.stars),
+           '9D99'
+        ) AS avg_rating
+     FROM movies JOIN ratings on ratings.movie_id = movies.id),
+   genres.id as genre_id,
+   genres.name as genre_name
+FROM movies
+JOIN genres on genres.id = movies.genre_id
+    `,
+    {id,}
+)
+
+const _get = id => getDbConn(dbAddr).one(
     'SELECT * FROM movies where movies.id = $[id]',
     {id}
 );
-const getAll = _ => getDbConn(dbAddr).any(
+const _getAll = _ => getDbConn(dbAddr).any(
     'SELECT * FROM movies',
 );
 const add = ({title, genre_id, image_url}) => getDbConn(dbAddr).none(
@@ -23,5 +80,6 @@ module.exports = {
     get,
     put,
     getAll,
+    search,
 }
 
