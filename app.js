@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 
 const {getGenresRouter, } = require('./routes/genres')
 const {getMoviesRouter, } = require('./routes/movies')
+const {getRatingsRouter, } = require('./routes/ratings')
 
 const getApp = () => {
     const app = express();
@@ -15,6 +16,7 @@ const getApp = () => {
 
     app.use('/genres', getGenresRouter())
     app.use('/movies', getMoviesRouter())
+    app.use('/ratings', getRatingsRouter())
 
     return app;
 }
